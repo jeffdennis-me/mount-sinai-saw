@@ -683,9 +683,17 @@ function(file, search, url, lib) {
           id : 'chairs',
           name : 'custevent_mts_svc_chairs'
         },
+        intermentChairs : {
+            id : 'intermentChairs',
+            name : 'custrecord_mts_intord_chairs'
+        },
         tent : {
           id : 'tent',
           name : 'custevent_mts_svc_tent'
+        },
+        intermentTent : {
+          id : 'intermentTent',
+          name : 'custrecord_mts_intord_tent'
         },
         // mhi task 35
         lastName : {
@@ -1170,6 +1178,10 @@ function(file, search, url, lib) {
         vault : {
             id : 'vault',
             name : 'custevent_mts_svc_vault'
+        },
+        intermentVault: {
+            id : 'intermentVault',
+            name : 'custrecord_mts_intord_vault'
         },
 //      vaultAmount : {
 //          id : 'vaultAmount',
