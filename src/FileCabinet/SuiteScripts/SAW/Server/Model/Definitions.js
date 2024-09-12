@@ -784,6 +784,10 @@ function(file, search, url, lib) {
             id : 'mortPrep',
             name : 'custentity_mts_mortuary_prep'
         },
+        mortPrepService: {
+            id: 'mortPrepService',
+            name: 'custrecord_mts_mort_prep_svc_ref'
+        },
         mortuary : {
             id : 'mortuary',
             list : 'customlist_mts_inside_outside',
@@ -988,6 +992,10 @@ function(file, search, url, lib) {
         relationToPrimaryClient : {
             id : 'relationToPrimaryClient',
             name : 'custrecord_mts_rltn_to_prmry_clnt'
+        },
+        otherRelationToPrimaryClient: {
+            id: 'otherRelationToPrimaryClient',
+            name: 'custrecord_mts_cust_rel_other'
         },
         religion : {
             id : 'religion',
@@ -1568,6 +1576,7 @@ function(file, search, url, lib) {
             'linkedClient.altName',
             'relationshipType',
             'relationToPrimaryClient',
+            'otherRelationToPrimaryClient',
             'reciprocalRelationship',
             'additionalInfo',
             'linkedClient.shippingAddress',

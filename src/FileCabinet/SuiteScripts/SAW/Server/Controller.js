@@ -87,6 +87,9 @@ function(runtime, lib, DEF, SAW, render, NSlog) {
         }
         var service = SAW.loadService(serviceId);
 
+        // JEFF - Bind Service to Mort Prep
+        SAW.linkServiceToMortPrep(serviceId, mortPrepId);
+
 //      log.debug('test', 'test4');
         var rabbiId = service.getValue(name('nameOfRabbi'));
         if (rabbiId)
