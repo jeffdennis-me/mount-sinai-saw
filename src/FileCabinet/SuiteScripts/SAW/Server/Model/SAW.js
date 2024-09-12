@@ -43,6 +43,7 @@ return {
     loadRelationshipTo : loadRelationshipTo,
     loadRelationshipTypes : loadRelationshipTypes,
     loadService : loadEntity.bind(this, 'service'),
+    linkServiceToMortPrep : linkServiceToMortPrep,
     loadStaffList : loadStaffList,
     loadTransferOfRemainsList : loadTransferOfRemainsList,
     loadItemGroupList : loadItemGroupList, // task 24
@@ -394,7 +395,11 @@ function loadContactRelationships() {
                 name : name('clientRelationshipType')
             }
         ],
-        filters : [name('clientRelationshipType'), 'noneof', '@NONE@'],
+        filters : [
+            [name('clientRelationshipType'), 'noneof', '@NONE@'],
+            "AND",
+            ['isinactive', 'IS', 'F'],
+        ],
         type : DEF.RECORD_TYPE.contactRelationship
     }).run(), function(relationship) {
         return {
@@ -406,8 +411,8 @@ function loadContactRelationships() {
 }
 
 function loadEntity(entity, id) {
-  log.debug('DEF.RECORD_TYPE[entity]', DEF.RECORD_TYPE[entity]);
-  log.debug('id', id);
+    log.debug('DEF.RECORD_TYPE[entity]', DEF.RECORD_TYPE[entity]);
+    log.debug('id', id);
     return record.load({
         id : id,
         type : DEF.RECORD_TYPE[entity]
@@ -423,7 +428,7 @@ function loadImmediateFamily(decedentId, nextOfKinValue) {
             [name('primaryClient'), 'ANYOF', decedentId],
             "AND",
             [name('relationshipType') +'.'+ name('familialRelation'),
-                 'IS', 'T'],
+                    'IS', 'T'],
 //          'AND',
 //          ['custrecord_mts_cust_rel_linked.isdefaultshipping', 'is', 'T'],
             'AND',
@@ -519,14 +524,15 @@ function loadItemGroups() {
         itemMappings[DEF.ITEM[item]] = {
             id: item,
             internalid: DEF.ITEM[item],
+            rate: record.load({ type: 'noninventoryitem', id: DEF.ITEM[item] }).getValue('rate')
         };
     }
     var groupings = {};
     for (var key in DEF.ITEM_GROUP) {
         if (!DEF.ITEM_GROUP.hasOwnProperty(key)) continue;
         var id = DEF.ITEM_GROUP[key];
+
         var group = record.load({ type: 'itemgroup', id: id });
-        var groupName = group.getValue('itemid');
         var memberCount = group.getLineCount({ sublistId: 'member' });
         var members = [];
         var groupPrice = 0;
@@ -534,35 +540,23 @@ function loadItemGroups() {
             var item = group.getSublistValue({ sublistId: 'member', line: i, fieldId: 'item' });
             var qty = group.getSublistValue({ sublistId: 'member', line: i, fieldId: 'quantity' });
             var memberMap = itemMappings[item];
-            try {
-                var rec = record.load({ id: item, type: 'noninventoryitem' });
-                var itemName = rec.getValue('itemid');
-                var rate = rec.getValue('rate');
-                var groupRate = rec.getValue(DEF.ITEM_GROUP_RATE_FIELDS[key]);
-                memberMap.name = itemName
-                memberMap.rate = groupRate || rate
-                memberMap.rateFormatted = ' - $'+ memberMap.rate
+            if (!!memberMap) {
                 groupPrice += memberMap.rate * qty;
-            } catch (e) {
+            } else {
                 try {
                     var rec = record.load({ id: item, type: 'serializedinventoryitem' });
-                    var itemName = rec.getValue('itemid');
-                    var rate = gr.getValue('rate');
-                    var groupRate = rec.getValue(DEF.ITEM_GROUP_RATE_FIELDS[key]);
+                    var rate = rec.getValue('rate');
                     memberMap = {
                         id: 'casket',
                         internalid: item,
-                        name: itemName,
-                        rate: groupRate || rate,
-                        rateFormatted: ' - $' + (groupRate || rate)
+                        rate: rate
                     }
-                    groupPrice += memberMap.rate * qty;
+                    groupPrice += rate * qty;
                 } catch (e) {}
             }
             members.push({ item: memberMap, qty: qty });
         }
         groupings[id.toString()] = {
-            name: groupName,
             groupPrice: groupPrice,
             groupPriceFormatted: ' - $'+groupPrice,
             members: members
@@ -668,7 +662,9 @@ function loadPurchaserRelationship() {
                 sort : 'ASC'
             }
         ],
-        filters : [],
+        filters : [
+            ['isinactive', 'IS', 'F']
+        ],
         type : DEF.RECORD_TYPE.contactRelationship
     }).run(), function(relationship) {
         return {
@@ -742,6 +738,20 @@ function loadRelationshipTypes() {
     });
 }
 
+function linkServiceToMortPrep(serviceId, mortPrepId) {
+    log.audit('Link service to mort prep', JSON.stringify({ serviceId: serviceId, mortPrepId: mortPrepId }));
+    db.saveRecord({
+        id : mortPrepId,
+        type : DEF.RECORD_TYPE.mortPrep,
+        toSave : [
+            {
+                fieldName : name('mortPrepService'),
+                value : serviceId
+            }
+        ],
+    });
+}
+
 function loadStaffList() {
     var arr = lib.RSMap(search.create({
         columns : [
@@ -799,31 +809,31 @@ function loadTransferOfRemainsList() {
 
 // ADD Task 24
 function loadItemGroupList() {
-  var arr = lib.RSMap(search.create({
-      columns : [
-          {
-              name : 'itemid',
-              sort : 'ASC'
-          }
-      ],
-      filters : [
+    var arr = lib.RSMap(search.create({
+        columns : [
+            {
+                name : 'itemid',
+                sort : 'ASC'
+            }
+        ],
+        filters : [
         ['isinactive','is','F'], 
         'AND', 
         ['type','anyof','Group']
-     ],
-      type : 'item'
-  }).run(), function(item) {
-      var name = item.getValue('itemid');
-      return {
-          text : name,
-          value : item.id
-      };
-  });
-  arr.unshift({
-      text : '',
-      value : ''
-  });
-  return arr;
+        ],
+        type : 'item'
+    }).run(), function(item) {
+        var name = item.getValue('itemid');
+        return {
+            text : name,
+            value : item.id
+        };
+    });
+    arr.unshift({
+        text : '',
+        value : ''
+    });
+    return arr;
 }
 // ADD task 24
 
@@ -872,3 +882,4 @@ function name(id) {
     return DEF.FIELD[id].name;
 }
 });
+    
