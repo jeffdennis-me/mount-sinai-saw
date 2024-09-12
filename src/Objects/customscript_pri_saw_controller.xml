@@ -1,0 +1,25 @@
+<suitelet scriptid="customscript_pri_saw_controller">
+  <description>Main Suitelet controller for the Service Arrangements Wizard</description>
+  <isinactive>F</isinactive>
+  <name>PRI SAW Controller</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <notifyuser>F</notifyuser>
+  <scriptfile>[/SuiteScripts/SAW/Server/Controller.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_pri_saw_controller">
+      <allemployees>F</allemployees>
+      <allpartners>F</allpartners>
+      <allroles>T</allroles>
+      <audslctrole></audslctrole>
+      <eventtype></eventtype>
+      <isdeployed>T</isdeployed>
+      <isonline>F</isonline>
+      <loglevel>DEBUG</loglevel>
+      <runasrole>ADMINISTRATOR</runasrole>
+      <status>RELEASED</status>
+      <title>PRI SAW Controller</title>
+    </scriptdeployment>
+  </scriptdeployments>
+</suitelet>
