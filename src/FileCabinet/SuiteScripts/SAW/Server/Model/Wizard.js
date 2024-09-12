@@ -414,6 +414,10 @@ Wizard.prototype.createIntermentOrder = function(intermentSpace, sectionName) {
         this.pushToSave('intermentOrder', 'otherContact', informant);
         this.pushToSave('intermentOrder', 'otherPhone', iphone);
 
+        this.pushToSave('intermentOrder', 'intermentVault', this.getValue('service', 'vault'));
+        this.pushToSave('intermentOrder', 'intermentTent', this.getValue('service', 'tent'));
+        this.pushToSave('intermentOrder', 'intermentChairs', this.getValue('service', 'chairs'));
+
         this.db.loadUnitSalesOrder(propertyUnit, function(data) {
             if (data.success) {
                 var result = data.result;
@@ -493,7 +497,7 @@ Wizard.prototype.createNewRelationship = function(callback) {
 };
 
 Wizard.prototype.createSalesContract = function(callback) {
-    debugger;
+
     var decedentId = this.getId('decedent');
     var intermentOrderId = this.getId('intermentOrder');
     var toSaves = [
