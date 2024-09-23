@@ -507,6 +507,22 @@ beforeScreen : {
         //     var fld = wizard.getCurrentField('casket');
         //     render.redrawField(fld);
         // }
+
+        // If Vault is part of a trust, the Vault checkbox should be greyed out in the Wizard
+        if (CNST.trustHasVault) {
+            var fld = wizard.getCurrentField('vault');
+            fld.disabled = true;
+            fld.value = true;
+            render.redrawField(fld);
+        }
+
+        // If Casket is in Trust, the Casket field should be pre-populated in the Wizard
+        if (CNST.trustHasCasket) {
+            var fld = wizard.getCurrentField('casket');
+            fld.disabled = true;
+            fld.value = CNST.trustCasketId;
+            render.redrawField(fld);
+        }
     },
 	
     //  Adjusts the 'nameOfRabbi' field if it is empty.
@@ -2206,7 +2222,7 @@ changeField : {
             var cost = 0;
         }
         var label = fieldLabel.getElementsByTagName('label')[0];
-        debugger
+        
         label.innerText = label.innerText.split('$')[0] + '$' + cost;
         wizard.setCost('websiteWebcast', cost);
     },
@@ -2459,6 +2475,21 @@ clickField : {
             } else {
               wizard.hideField('secondLineInterestText');
             }
+            wizard.getTrustItems(trustId, function(data) {
+                if (data.success) {
+                    if (data.items.hasOwnProperty(CNST.vaultItemId)) {
+                        CNST.trustHasVault = true
+                    }
+                    for (const key in data.items) {
+                        const item = data.items[key]?.item
+                        if (/\bCasket\b/.test(item)) {
+                            CNST.trustHasCasket = true;
+                            CNST.trustCasketId = key;
+                            break
+                        }
+                    }
+                }
+            })
             wizard.removeSubscreen();
         }
     },
@@ -2944,7 +2975,7 @@ clickField : {
         }
     },
     linkedClient : function() {
-        debugger
+        
         var table = wizard.getHeaderField('immediateFamily');
         if (!table.selection)
             wizard.buildSubscreen('createSearchMember');
@@ -3295,7 +3326,6 @@ clickField : {
     },
     searchResultsFamily : function() {
         console.log('clickField searchResultsFamily')
-        debugger;
         var field = wizard.getSubField('searchResultsFamily');
         var parentElement = this.parentElement;
         var id = parentElement.id.split('_').pop();
@@ -3370,7 +3400,6 @@ clickField : {
             wizard.moveToSection(this.id);
     },
     shippingAddress : function() {
-        debugger;
         render.hideAllMainFields();
         wizard.buildSubscreen('enterAddress');
     },

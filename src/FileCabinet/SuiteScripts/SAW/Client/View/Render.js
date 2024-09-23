@@ -209,6 +209,7 @@ Render.prototype.drawField = function(field) {
                 'data-items': !!field.itemIds && field.itemIds.join(',') || ''
             })
             .prop('checked', field.value)
+            .prop('disabled', field.disabled === true)
 //          .css('width', 'auto');
             .css({
 //              '-webkit-appearance' : 'none',
@@ -532,7 +533,8 @@ Render.prototype.drawField = function(field) {
                 id : field.id,
                 'data-items': !!field.itemIds && field.itemIds.join(',') || ''
             })
-            .css('max-width', '25rem');
+            .css('max-width', '25rem')
+            .prop('disabled', field.disabled === true);
 
         var listId = field.list
             || field.id;
@@ -771,6 +773,7 @@ Render.prototype.drawFields = function(screenName, fields, double) {
 };
 
 Render.prototype.drawScreen = function() {
+    debugger;
     var screen = this.wizard.getCurrentScreen();
     // log('drawScreen', screen);
     this.form.screen = $("#screen");
